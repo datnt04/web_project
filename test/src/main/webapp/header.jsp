@@ -51,7 +51,7 @@
                     <button type="submit">🔍</button>
                 </div>
             </div>
-            <img src="img/icon/cart.png" alt="Cart" class="icon">
+            <a href="order.jsp"><img src="img/icon/cart.png" alt="Cart" class="icon">
             <img src="img/icon/heart.png" alt="Heart" class="icon">
             <c:choose>
                 <c:when test="${not empty sessionScope.user}">
