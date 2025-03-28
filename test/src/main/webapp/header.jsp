@@ -36,7 +36,19 @@
         </div>
         <nav>
             <ul>
-                <li><a href="index.jsp">Trang chủ</a></li>
+                <li><a href="products">Trang chủ</a></li>
+                <c:if test="${not empty sessionScope.user and sessionScope.user.role eq 'admin'}">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Dashboard
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Quản lý người dùng</a></li>
+                            <li><a class="dropdown-item" href="productmanagement">Quản lý sản phẩm</a></li>
+                            <li><a class="dropdown-item" href="#">Quản lý đơn hàng</a></li>
+                        </ul>
+                    </li>
+                </c:if>
                 <li><a href="#">Cửa hàng</a></li>
                 <li><a href="#">Liên hệ</a></li>
             </ul>

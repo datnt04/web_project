@@ -4,6 +4,7 @@ import model.Product;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,5 +87,18 @@ public class ProductRepository {
         }
 
         return product;
+    }
+    public boolean deleteBookById(int bookId) {
+        String query = "DELETE FROM `book_haven`.`product` WHERE Product_ID = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement preparedStatement = conn.prepareStatement(query)) {
+
+            preparedStatement.setInt(1, bookId);
+            int affectedRows = preparedStatement.executeUpdate();
+            return affectedRows == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

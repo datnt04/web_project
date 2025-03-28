@@ -13,5 +13,7 @@ public class ProductService {
     public Product getProductById(int id) {
         return productRepository.findById(id);
     }
-
+    public boolean deleteBook(int bookId) {
+        return productRepository.deleteBookById(bookId);
+    }
 }

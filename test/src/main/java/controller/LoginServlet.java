@@ -36,12 +36,15 @@ public class LoginServlet extends HttpServlet {
                                 rs.getTimestamp("created_at")
                         );
 
-                        if ("customer".equals(user.getRole())) {
-                            HttpSession session = request.getSession();
-                            session.setAttribute("user", user); // Đặt toàn bộ user object
-                            session.setAttribute("username", user.getName()); // Đặt thêm username riêng nếu JSP dùng
+                        HttpSession session = request.getSession();
+                        session.setAttribute("user", user); // Lưu thông tin user vào session
+                        session.setAttribute("username", user.getName()); // Lưu tên user
 
-                            // 👉 Redirect về trang trước nếu có
+                        // Kiểm tra role để chuyển hướng
+                        if ("admin".equals(user.getRole())) {
+                            response.sendRedirect("products"); // Chuyển hướng admin
+                        } else {
+                            // Redirect về trang trước nếu có
                             String previousUrl = (String) session.getAttribute("previousUrl");
                             if (previousUrl != null) {
                                 session.removeAttribute("previousUrl");
@@ -49,10 +52,6 @@ public class LoginServlet extends HttpServlet {
                             } else {
                                 response.sendRedirect("products");
                             }
-
-                        } else {
-                            request.setAttribute("error", "Tài khoản này không có quyền truy cập!");
-                            request.getRequestDispatcher("login.jsp").forward(request, response);
                         }
                     } else {
                         request.setAttribute("error", "Email hoặc mật khẩu không đúng!");
