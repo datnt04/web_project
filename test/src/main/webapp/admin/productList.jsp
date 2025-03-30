@@ -28,7 +28,10 @@
   <c:if test="${empty bookList}">
     <p class="text-danger text-center">Không có sản phẩm nào.</p>
   </c:if>
-
+  <form action="productmanagement?action=search" method="GET">
+    <input value="${searchName}" class="form-control form-control-sm w-25" name="searchName"
+           placeholder="Nhập tên cần tìm kếm"><button type="submit">Tìm Kiếm</button>
+  </form>
   <table class="table table-bordered text-center">
     <thead class="table-dark">
     <tr>
@@ -36,7 +39,7 @@
       <th>Tên</th>
       <th>Giá</th>
       <th>Số lượng</th>
-      <th>Số lượng</th>
+      <th>Mô tả</th>
       <th>Danh mục</th>
       <th>Nhà cung cấp</th>
       <th>Ảnh</th>
@@ -50,15 +53,15 @@
       <tr>
         <td>${book.productId}</td>
         <td>${book.name}</td>
-        <td>${book.price} VNĐ</td>
+        <td>${book.price}</td>
         <td>${book.stock}</td>
         <td>${book.description}</td>
         <td>${book.categoryName}</td>
         <td>${book.supplierName}</td>
-        <td><img src="${book.imageUrl}" width="50" height="50"></td>
+        <td><img src="${book.imageUrl}" width="50" height="50" alt="Image"/></td>
         <td>${book.author}</td>
         <td>
-          <a href="productmanagement?action=delete&deleteId=${book.productId}" class="btn btn-warning btn-sm">
+          <a href="productmanagement?action=edit&editId=${book.productId}" class="btn btn-warning btn-sm">
             <i class="fas fa-edit"></i> Sửa
           </a>
         </td>
@@ -68,7 +71,6 @@
             Xoá
           </button>
         </td>
-
       </tr>
     </c:forEach>
     </tbody>
@@ -84,9 +86,9 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <input hidden="hidden" name="action" value="delete">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ,ction" value="delete">
-          <input hidden="hidden" id="deleteId" name="deleteId">
-          <span>Bạn có muốn sách có tên </span><span id="deleteName"></span>
+          <input type="hidden" name="action" value="delete">
+          <input type="hidden" id="deleteId" name="deleteId">
+          <span>Bạn có muốn xóa sách có tên </span><span id="deleteName"></span>?
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
@@ -94,19 +96,10 @@
         </div>
       </div>
     </form>
-
   </div>
 </div>
 
-
 <!-- JS -->
-<script>
-  function thongTinXoa(id, name) {
-    console.log("ID cần xóa:", id, "Tên sách:", name);
-    document.getElementById("deleteId").value = id;
-    document.getElementById("deleteName").innerText = name;
-  }
-</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="../js/script.js"></script>

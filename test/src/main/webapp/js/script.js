@@ -45,4 +45,9 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error('Swiper not loaded. Please check the Swiper.js CDN or local file.');
     }
 });
+function thongTinXoa(id, name) {
+    console.log("ID cần xóa:", id, "Tên sách:", name);
+    document.getElementById("deleteId").value = id;
+    document.getElementById("deleteName").innerText = name;
+};
 

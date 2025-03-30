@@ -1,0 +1,21 @@
+package model;
+
+
+public class Category {
+    private int categoryId;
+    private String categoryName; // Đảm bảo tên thuộc tính đúng với JSP
+
+    public Category(int categoryId, String categoryName) {
+        this.categoryId = categoryId;
+        this.categoryName = categoryName;
+    }
+
+    public int getCategoryId() {
+        return categoryId;
+    }
+
+    public String getCategoryName() { // Đúng với JSP
+        return categoryName;
+    }
+}
+
