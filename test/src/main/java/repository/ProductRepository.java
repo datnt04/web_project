@@ -2,6 +2,8 @@ package repository;
 
 import model.Category;
 import model.Product;
+import model.Supplier;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -149,22 +151,36 @@ public class ProductRepository {
             return false;
         }
     }
-    public List<Product> searchProducts(String name) {
+    public List<Product> searchProducts(String name, String categoryId) {
         List<Product> searchList = new ArrayList<>();
-        String sql = "SELECT p.Product_ID, p.Name, p.Price, p.Stock, p.Product_Description, " +
-                "pc.Name AS Category_Name, s.Name AS Supplier_Name, p.Product_img, p.Author " +
-                "FROM Product p " +
-                "LEFT JOIN Product_Category pc ON p.Product_Category_ID = pc.Category_ID " +
-                "LEFT JOIN Supplier s ON p.Supplier_ID = s.ID " +
-                "WHERE p.Name LIKE ?";
+        StringBuilder sqlBuilder = new StringBuilder(
+                "SELECT p.Product_ID, p.Name, p.Price, p.Stock, p.Product_Description, " +
+                        "pc.Name AS Category_Name, pc.Category_ID, s.Name AS Supplier_Name, p.Product_img, p.Author " +
+                        "FROM Product p " +
+                        "LEFT JOIN Product_Category pc ON p.Product_Category_ID = pc.Category_ID " +
+                        "LEFT JOIN Supplier s ON p.Supplier_ID = s.ID " +
+                        "WHERE 1=1");
 
-        if (name == null || name.trim().isEmpty()) {
-            return searchList;
+        // Thêm điều kiện tìm kiếm
+        if (name != null && !name.trim().isEmpty()) {
+            sqlBuilder.append(" AND p.Name LIKE ?");
         }
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        if (categoryId != null && !categoryId.trim().isEmpty()) {
+            sqlBuilder.append(" AND pc.Category_ID = ?");
+        }
 
-            stmt.setString(1, "%" + name.trim() + "%");
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sqlBuilder.toString())) {
+
+            int paramIndex = 1;
+            if (name != null && !name.trim().isEmpty()) {
+                stmt.setString(paramIndex++, "%" + name.trim() + "%");
+            }
+            if (categoryId != null && !categoryId.trim().isEmpty()) {
+                stmt.setInt(paramIndex, Integer.parseInt(categoryId.trim()));
+            }
+
+            System.out.println("SQL Query: " + sqlBuilder.toString());
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -174,8 +190,8 @@ public class ProductRepository {
                             rs.getDouble("Price"),
                             rs.getInt("Stock"),
                             rs.getString("Product_Description"),
-                            rs.getString("Category_Name"), // Lấy category từ bảng Product_Category
-                            rs.getString("Supplier_Name"), // Lấy supplier từ bảng Supplier
+                            rs.getString("Category_Name"),
+                            rs.getString("Supplier_Name"),
                             rs.getString("Product_img"),
                             rs.getString("Author")
                     );
@@ -184,29 +200,86 @@ public class ProductRepository {
             }
         } catch (SQLException e) {
             System.err.println("Lỗi khi tìm kiếm sản phẩm: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.err.println("Lỗi chuyển đổi categoryId: " + e.getMessage());
         }
 
         return searchList;
     }
-
-
-    public List<Category> getAllCategories() {
-        List<Category> categories = new ArrayList<>();
-        String sql = "SELECT Category_ID, Name FROM Product_Category";
+    public List<Supplier> getSuppliers() {
+        List<Supplier> supplierList = new ArrayList<>();
+        String sql = "SELECT id, Name FROM Supplier"; // Lấy cả ID nếu cần
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                categories.add(new Category(rs.getInt("Category_ID"), rs.getString("Name")));
+                supplierList.add(new Supplier(rs.getInt("id"), rs.getString("name"))); // Sửa "ID" thành "Supplier_ID"
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
+        return supplierList;
+    }
+    public List<Category> getAllCategories() {
+        List<Category> categories = new ArrayList<>();
+        String sql = "SELECT Category_ID, Name FROM Product_Category";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                categories.add(new Category(rs.getInt("Category_ID"), rs.getString("Name")));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return categories;
+    }
+    public boolean addProduct(Product product) {
+        String getCategoryIdSql = "SELECT Category_ID FROM Product_Category WHERE Name = ?";
+        String getSupplierIdSql = "SELECT ID FROM Supplier WHERE Name = ?";
+        String insertSql = "INSERT INTO Product (Name, Price, Stock, Product_Description, Product_Category_ID, Supplier_ID, Product_img, Author) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement categoryStmt = conn.prepareStatement(getCategoryIdSql);
+             PreparedStatement supplierStmt = conn.prepareStatement(getSupplierIdSql);
+             PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+
+            // Lấy categoryId từ categoryName
+            categoryStmt.setString(1, product.getCategoryName());
+            ResultSet categoryRs = categoryStmt.executeQuery();
+            int categoryId = categoryRs.next() ? categoryRs.getInt("Category_ID") : -1;
+
+            // Lấy supplierId từ supplierName
+            supplierStmt.setString(1, product.getSupplierName());
+            ResultSet supplierRs = supplierStmt.executeQuery();
+            int supplierId = supplierRs.next() ? supplierRs.getInt("ID") : -1;
+
+            // Kiểm tra nếu không tìm thấy ID
+            if (categoryId == -1 || supplierId == -1) {
+                System.out.println("Lỗi: Không tìm thấy danh mục hoặc nhà cung cấp.");
+                return false;
+            }
+
+            // Thêm sản phẩm
+            insertStmt.setString(1, product.getName());
+            insertStmt.setDouble(2, product.getPrice());
+            insertStmt.setInt(3, product.getStock());
+            insertStmt.setString(4, product.getDescription());
+            insertStmt.setInt(5, categoryId);
+            insertStmt.setInt(6, supplierId);
+            insertStmt.setString(7, product.getImageUrl());
+            insertStmt.setString(8, product.getAuthor());
+
+            int affectedRows = insertStmt.executeUpdate();
+            return affectedRows > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
 }

@@ -42,7 +42,7 @@ public class LoginServlet extends HttpServlet {
 
                         // Kiểm tra role để chuyển hướng
                         if ("admin".equals(user.getRole())) {
-                            response.sendRedirect("productmanagement"); // Chuyển hướng admin
+                            response.sendRedirect("products"); // Chuyển hướng admin
                         } else {
                             // Redirect về trang trước nếu có
                             String previousUrl = (String) session.getAttribute("previousUrl");

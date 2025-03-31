@@ -43,7 +43,7 @@
                             Quản lý
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">Quản lý người dùng</a></li>
+                            <li><a class="dropdown-item" href="users">Quản lý người dùng</a></li>
                             <li><a class="dropdown-item" href="productmanagement">Quản lý sản phẩm</a></li>
                             <li><a class="dropdown-item" href="#">Quản lý đơn hàng</a></li>
                         </ul>

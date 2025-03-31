@@ -2,6 +2,7 @@ package service;
 
 import model.Category;
 import model.Product;
+import model.Supplier;
 import repository.ProductRepository;
 import java.util.List;
 
@@ -24,7 +25,14 @@ public class ProductService {
     public boolean updateProduct(Product updatedProduct) {
         return productRepository.updateProduct(updatedProduct);
     }
-    public List<Product> searchProducts(String name) {
-        return productRepository.searchProducts(name);
+    public List<Product> searchProducts(String name, String categoryName) {
+        return productRepository.searchProducts(name,categoryName);
+    }
+
+    public void addProduct(Product newProduct) {
+        productRepository.addProduct(newProduct);
+    }
+    public List<Supplier> getSuppliers() {
+        return productRepository.getSuppliers();
     }
 }

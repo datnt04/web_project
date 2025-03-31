@@ -14,7 +14,7 @@ public class Category {
         return categoryId;
     }
 
-    public String getCategoryName() { // Đúng với JSP
+    public String getCategoryName() {
         return categoryName;
     }
 }

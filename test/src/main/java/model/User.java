@@ -24,6 +24,9 @@ public class User {
         this.createdAt = createdAt;
     }
 
+    public User(int id, String name, String email, String password, String address, String role) {
+    }
+
     // Getters and Setters
     public int getId() {
         return id;
