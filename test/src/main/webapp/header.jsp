@@ -49,7 +49,7 @@
                         <input type="text" placeholder="Tìm kiếm sách...">
                     </label>
                     <button type="submit">🔍</button>
-                </div>
+                </div> 
             </div>
             <a href="order.jsp"><img src="img/icon/cart.png" alt="Cart" class="icon">
             <img src="img/icon/heart.png" alt="Heart" class="icon">

@@ -1,6 +1,8 @@
 package repository;
 
 import com.mysql.cj.x.protobuf.MysqlxCrud;
+
+import model.OrderDetails;
 import model.Orders;
 import model.Product;
 
@@ -14,12 +16,13 @@ import java.util.List;
 public class OrderRepository {
    public List<Orders> findAllOrders() {
        List<Orders> orders = new ArrayList<>();
-       String sql = "SELECT o.Order_ID, u.name AS Customer_Id, o.Order_Date, o.Total_Amount, o.Status " +
+       String sql = "SELECT o.Order_ID as orderId, u.name AS customerId,o.Order_Notes as orderNotes, o.Coupon_Code as couponCode, o.Discount_Amount as discountAmount, o.Payment_Method as paymentMethod, o.Order_Date as orderDate, o.Total_Amount as totalAmount, o.Status as status  " +
                "FROM Orders o JOIN users u ON o.Customer_ID = u.id";
        try (Connection conn = DatabaseConnection.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery()) {
            while (rs.next()) {
+        	   String ddd = rs.getString("orderNotes");
                orders.add(new Orders(
             		   rs.getString("customerId"),
                        rs.getInt("orderId"),
@@ -28,8 +31,9 @@ public class OrderRepository {
                        rs.getString("orderNotes"),
                        rs.getString("couponCode"),
                        rs.getDouble("discountAmount"),
-                       rs.getString("paymentMethod")
-
+                       rs.getString("paymentMethod"),
+                       rs.getString("status")
+                       
                ));
            }
        }catch (SQLException e) {
@@ -39,7 +43,7 @@ public class OrderRepository {
    }
    public List<Orders> findByCustomerId (String customerId) {
        List<Orders> orders = new ArrayList<>();
-       String sql = "SELECT o.Order_ID, u.name AS Customer_Id, o.Order_Date, o.Total_Amount, o.Status " +
+       String sql = "SELECT o.Order_ID as orderId, u.name AS customerId, o.Order_Date as orderDate, o.Order_Notes as orderNotes, o.Coupon_Code as couponCode, o.Discount_Amount as discountAmount, o.Payment_Method as paymentMethod, o.Total_Amount as totalAmount , o.Status as status  " +
                "FROM Orders o JOIN users u ON o.Customer_ID = u.id WHERE u.name LIKE ?";
        try (Connection conn = DatabaseConnection.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)){
@@ -54,7 +58,8 @@ public class OrderRepository {
                        rs.getString("orderNotes"),
                        rs.getString("couponCode"),
                        rs.getDouble("discountAmount"),
-                       rs.getString("paymentMethod")
+                       rs.getString("paymentMethod"),
+                       rs.getString("status")
                ));
            }
        }catch (SQLException e) {
@@ -63,7 +68,7 @@ public class OrderRepository {
        return orders;
    }
     public  Orders findById(int orderId) {
-        String sql = "SELECT o.Order_ID, u.name AS Customer_Id, o.Order_Date, o.Total_Amount, o.Status " +
+        String sql = "SELECT o.Order_ID as orderId, u.name AS customerId, o.Order_Date as orderDate,,o.Order_Notes as orderNotes, o.Coupon_Code as couponCode, o.Discount_Amount as discountAmount, o.Payment_Method as paymentMethod, o.Total_Amount as totalAmount, o.Status as status  " +
                 "FROM Orders o JOIN users u ON o.Customer_ID = u.id WHERE o.Order_ID = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -74,15 +79,15 @@ public class OrderRepository {
 
             if (rs.next()) {
                 return new Orders(
-                		  rs.getString("customerId"),
+                		rs.getString("customerId"),
                         rs.getInt("orderId"),
-                      
                         rs.getString("orderDate"),
                         rs.getDouble("totalAmount"),
                         rs.getString("orderNotes"),
                         rs.getString("couponCode"),
                         rs.getDouble("discountAmount"),
-                        rs.getString("paymentMethod")
+                        rs.getString("paymentMethod"),
+                        rs.getString("status")
                 );
             }
         } catch (SQLException e) {
@@ -99,4 +104,30 @@ public class OrderRepository {
         }
         return filteredOrders;
     }
+    public boolean deleteOrder(int orderId) {
+        String sql = "DELETE FROM Orders WHERE Order_ID = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, orderId);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+}
+    public boolean approveOrder(int orderId) {
+        String sql = "UPDATE Orders SET Status = 'Approved' WHERE Order_ID = ? AND Status = 'Pending'";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, orderId);
+            int rowsUpdated = stmt.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+	
 }

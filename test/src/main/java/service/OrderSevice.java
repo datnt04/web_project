@@ -8,7 +8,7 @@ import repository.ProductRepository;
 import java.util.List;
 
 public class OrderSevice {
-    private  OrderRepository orderRepository = new OrderRepository();
+    private static  OrderRepository orderRepository = new OrderRepository();
     public List<Orders> getAllOrders() {
         return orderRepository.findAllOrders();
     }
@@ -28,4 +28,5 @@ public class OrderSevice {
             return null;
         }
     }
+   
 }
